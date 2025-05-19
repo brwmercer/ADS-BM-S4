@@ -8,17 +8,17 @@ public class Movie {
     private static char[][] seats = new char[ROWS][COLS];
 
     public static void main(String[] args) {
-        intializedBooking();
+        initializeBooking();
 
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
 
         while (!exit) {
-            System.out.println("1: Display seating");
+            System.out.println("\n1: Display seating");
             System.out.println("2: Book seats");
             System.out.println("3: Cancel booking");
             System.out.println("4: Exit");
-            System.out.println("Provide Choice: ");
+            System.out.print("Provide Choice: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -43,7 +43,7 @@ public class Movie {
         scanner.close();
     }
 
-    private static void intializedBooking() {
+    private static void initializeBooking() {
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
                 seats[i][j] = '.';
@@ -52,31 +52,30 @@ public class Movie {
     }
 
     private static void displaySeating() {
-        System.out.println("Seating: ");
+        System.out.println("\nSeating:");
         for (int i = 0; i < ROWS; i++) {
+            System.out.print((char) ('A' + i) + ": ");
             for (int j = 0; j < COLS; j++) {
-                System.out.println(seats[i][j] + " ");
+                System.out.print(seats[i][j] + " ");
             }
             System.out.println();
         }
     }
+
     private static void bookSeats(Scanner scanner) {
-        System.out.println("Enter number of seats you would like to book: ");
+        System.out.print("Enter number of seats you would like to book: ");
         int numSeats = scanner.nextInt();
         scanner.nextLine();
+
         List<String> availSeats = findAvailSeats(numSeats);
 
         if (availSeats.isEmpty()) {
-            System.out.println("No available seats");
+            System.out.println("No available seats found for " + numSeats + " consecutive seats.");
         } else {
-            System.out.println("Available seats: ");
-            for (String seat : availSeats) {
-                System.out.print(seat + " ");
-            }
-            System.out.println("Please enter seats you want to book: ");
-            String selectedSeat = scanner.nextLine();
-
-            String[] selectedSeatArray = selectedSeat.split(" ");
+            System.out.println("Suggested available seats: " + String.join(" ", availSeats));
+            System.out.print("Enter the seats you want to book (space-separated): ");
+            String selectedSeatLine = scanner.nextLine();
+            String[] selectedSeatArray = selectedSeatLine.trim().split("\\s+");
 
             boolean validBooking = true;
             for (String seat : selectedSeatArray) {
@@ -85,16 +84,18 @@ public class Movie {
                     break;
                 }
             }
+
             if (validBooking) {
                 for (String seat : selectedSeatArray) {
                     reserveSeat(seat);
                 }
-                System.out.println("SUCCESSFULLY BOOKED");
+                System.out.println("Seats successfully booked!");
             } else {
-                System.out.println("ERROR: INVALID SEATING");
+                System.out.println("Invalid seat selection. Booking failed.");
             }
         }
     }
+
     private static List<String> findAvailSeats(int numSeats) {
         List<String> availSeats = new ArrayList<>();
         for (int i = 0; i < ROWS; i++) {
@@ -103,7 +104,7 @@ public class Movie {
                 if (seats[i][j] == '.') {
                     emptySeats++;
                     if (emptySeats == numSeats) {
-                        for (int k = 0; k < numSeats; k++) {
+                        for (int k = numSeats - 1; k >= 0; k--) {
                             availSeats.add((char) ('A' + i) + Integer.toString(j - k + 1));
                         }
                         return availSeats;
@@ -123,17 +124,17 @@ public class Movie {
     }
 
     private static void cancelBooking(Scanner scanner) {
-        System.out.print("ENTER SEAT YOU WANT TO CANCEL: ");
-        String seatCancel = scanner.nextLine();
+        System.out.print("Enter the seat to cancel (e.g., B3): ");
+        String seatCancel = scanner.nextLine().toUpperCase();
 
         int row = seatCancel.charAt(0) - 'A';
         int col = Integer.parseInt(seatCancel.substring(1)) - 1;
 
         if (row >= 0 && row < ROWS && col >= 0 && col < COLS && seats[row][col] == 'R') {
             seats[row][col] = '.';
-            System.out.println("Seat cancelled");
+            System.out.println("Seat " + seatCancel + " has been cancelled.");
         } else {
-            System.out.println("Invalid seat");
+            System.out.println("Invalid seat or seat not booked.");
         }
     }
 }
